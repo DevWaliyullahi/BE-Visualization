@@ -17,9 +17,23 @@ const order_1 = __importDefault(require("../entity/order"));
 const data_source_1 = require("../database/data-source");
 // Create an API endpoint that accepts new orders from the form. The endpoint should store the received data. 
 const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const orderRepository = data_source_1.AppDataSource.getRepository(order_1.default);
-    const newOrder = orderRepository.create(req.body);
-    const result = yield orderRepository.save(newOrder);
-    res.json(result);
+    try {
+        const orderRepository = data_source_1.AppDataSource.getRepository(order_1.default);
+        const newOrder = orderRepository.create(req.body);
+        const result = yield orderRepository.save(newOrder);
+        // Sending a success response to the frontend with the created order data
+        res.json({ success: true, order: result });
+        // handle error
+    }
+    catch (error) {
+        let errorMessage = 'An error occurred while creating the order.';
+        if (error instanceof Error && error.message) {
+            errorMessage += ` Reason: ${error.message}`;
+        }
+        else if (typeof error === 'string') {
+            errorMessage += ` Reason: ${error}`;
+        }
+        res.status(500).json({ success: false, error: errorMessage });
+    }
 });
 exports.createOrder = createOrder;
