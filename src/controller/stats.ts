@@ -72,14 +72,26 @@ export const populateDatabase = async (req: Request, res: Response): Promise<voi
     }
 };
 
+
 export const getStats = async (req: Request, res: Response): Promise<void> => {
-    const orderRepository = AppDataSource.getRepository(Order);
-    const orders = await orderRepository.find();
-    const totalRevenue = orders.reduce((acc, order) => acc + order.price, 0);
-    const uniqueCustomers = new Set(orders.map((order) => order.customerName)).size;
-    res.json({
-        totalRevenue,
-        orders: orders.length,
-        customers: uniqueCustomers,
-    });
+    try {
+        const orderRepository = AppDataSource.getRepository(Order);
+        const orders = await orderRepository.find();
+
+        // Calculate total revenue
+        const totalRevenue: number = orders.reduce((acc, order) => acc + Number(order.price), 0);
+
+        // Calculate unique customers
+        const uniqueCustomers = new Set(orders.map((order) => order.customerName)).size;
+
+        // Send response
+        res.json({
+            totalRevenue,
+            orders: orders.length,
+            customers: uniqueCustomers,
+        });
+    } catch (error) {
+        console.log("Error fetching data:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
 };
