@@ -95,3 +95,40 @@ export const getStats = async (req: Request, res: Response): Promise<void> => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
+
+
+//Enpoint to get all the data from the database
+
+export const getAllOrders = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const orderRepository = AppDataSource.getRepository(Order);
+        const orders = await orderRepository.find();
+        res.json(orders);
+    } catch (error) {
+        console.log("Error fetching data:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+// Endpoint to get orders by product category and its total by length
+
+export const getOrdersByCategory = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const orderRepository = AppDataSource.getRepository(Order);
+        const orders = await orderRepository.find();
+
+        const ordersByCategory: { [key: string]: number } = orders.reduce((acc, order) => {
+            if (!acc[order.productCategory]) {
+                acc[order.productCategory] = 1;
+            } else {
+                acc[order.productCategory]++;
+            }
+            return acc;
+        }, {} as { [key: string]: number });
+
+        res.json(ordersByCategory);
+    } catch (error) {
+        console.log("Error fetching data:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getStats = exports.populateDatabase = void 0;
+exports.getOrdersByCategory = exports.getAllOrders = exports.getStats = exports.populateDatabase = void 0;
 const fs_1 = require("fs");
 const path_1 = __importDefault(require("path"));
 const csv_parser_1 = __importDefault(require("csv-parser"));
@@ -99,3 +99,38 @@ const getStats = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.getStats = getStats;
+//Enpoint to get all the data from the database
+const getAllOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const orderRepository = data_source_1.AppDataSource.getRepository(order_1.default);
+        const orders = yield orderRepository.find();
+        res.json(orders);
+    }
+    catch (error) {
+        console.log("Error fetching data:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+exports.getAllOrders = getAllOrders;
+// Endpoint to get orders by product category and its total by length
+const getOrdersByCategory = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const orderRepository = data_source_1.AppDataSource.getRepository(order_1.default);
+        const orders = yield orderRepository.find();
+        const ordersByCategory = orders.reduce((acc, order) => {
+            if (!acc[order.productCategory]) {
+                acc[order.productCategory] = 1;
+            }
+            else {
+                acc[order.productCategory]++;
+            }
+            return acc;
+        }, {});
+        res.json(ordersByCategory);
+    }
+    catch (error) {
+        console.log("Error fetching data:", error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+exports.getOrdersByCategory = getOrdersByCategory;

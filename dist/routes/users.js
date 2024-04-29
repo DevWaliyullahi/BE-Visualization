@@ -14,4 +14,6 @@ router.get('/', function (req, res, next) {
 router.post('/order', order_1.createOrder);
 router.get('/stats', stats_1.getStats);
 router.post('/populate', stats_1.populateDatabase);
+router.get('/orders', stats_1.getAllOrders);
+router.get('/category', stats_1.getOrdersByCategory);
 exports.default = router;
